@@ -1,6 +1,6 @@
 FROM node:20-bookworm-slim
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 COPY . .
 EXPOSE 3001
