@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Readable } from 'node:stream';
 import { requireEnv } from '../middleware/auth.js';
 
 const router = Router();
@@ -128,7 +129,7 @@ router.get('/asset/:path(*)', async (req, res) => {
         res.setHeader(key, value);
       }
     });
-    response.body.pipe(res);
+    Readable.fromWeb(response.body).pipe(res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -164,7 +165,7 @@ router.get('/proxy/play/:gameId', async (req, res) => {
         res.setHeader(key, value);
       }
     });
-    response.body.pipe(res);
+    Readable.fromWeb(response.body).pipe(res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
