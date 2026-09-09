@@ -3,7 +3,7 @@ import useApi from '../hooks/useApi.js'
 import Player from './Player.jsx'
 import { sfx } from '../audio.js'
 
-export default function LibraryGrid({ lowEnd, onStepInside }) {
+export default function LibraryGrid() {
   const [games, setGames] = useState([])
   const [platforms, setPlatforms] = useState([])
   const [activePlatform, setActivePlatform] = useState('all')
@@ -32,7 +32,6 @@ export default function LibraryGrid({ lowEnd, onStepInside }) {
 
   const handlePlay = (game) => {
     sfx.coin()
-    if (onStepInside) onStepInside()
     setPlayingGame(game)
   }
 
@@ -88,7 +87,7 @@ export default function LibraryGrid({ lowEnd, onStepInside }) {
       )}
 
       {playingGame && (
-        <Player game={playingGame} onClose={() => { setPlayingGame(null); if (onStepInside) onStepInside() }} />
+        <Player game={playingGame} onClose={() => setPlayingGame(null)} />
       )}
     </>
   )

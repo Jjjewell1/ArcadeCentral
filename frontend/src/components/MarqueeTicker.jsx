@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useCredits } from '../hooks/useCredits.jsx'
 
-export default function MarqueeTicker({ lowEnd }) {
+export default function MarqueeTicker() {
   const [stats, setStats] = useState({
     libraryCount: 0,
     activeDownloads: 0,
@@ -28,12 +28,10 @@ export default function MarqueeTicker({ lowEnd }) {
     return () => clearInterval(id)
   }, [])
 
-  if (lowEnd) return null
-
   const items = [
     `LIBRARY SIZE: ${stats.libraryCount} GAMES`,
     `ACTIVE DOWNLOADS: ${stats.activeDownloads}`,
-    stats.recentGrab ? `MOST RECENT GRAB: ${stats.recentGrab.toUpperCase()}` : 'ARCADE CENTRAL',
+    recentGrab ? `MOST RECENT GRAB: ${recentGrab.toUpperCase()}` : 'ARCADE CENTRAL',
     'HIGH SCORE: YOU',
     'PLAY AGAIN?',
     'CREDITS COST: 25\u00A2',

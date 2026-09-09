@@ -1,12 +1,10 @@
-import { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { sfx } from '../audio.js'
 import { useCredits } from '../hooks/useCredits.jsx'
 
-export default function Navbar({ lowEnd, muted, onToggleMute }) {
+export default function Navbar({ muted, onToggleMute }) {
   const { credits } = useCredits()
   const location = useLocation()
-  const prevZone = useRef(null)
 
   const zones = [
     { path: '/', label: 'LOBBY' },
@@ -16,35 +14,27 @@ export default function Navbar({ lowEnd, muted, onToggleMute }) {
     { path: '/settings', label: 'SETTINGS' },
   ]
 
-  // Footstep sound on nav (only for non-lowend)
-  const handleNav = (e) => {
-    if (!lowEnd) sfx.footstep()
-  }
-  useEffect(() => {
-    return () => { prevZone.current = null }
-  }, [])
-
   return (
-    <>
-      <nav className="navbar" onClick={handleNav}>
-        <div className="logo">ARCADE&#9679;CENTRAL</div>
+    <nav className="navbar">
+      <div className="logo">ARCADE&#9679;CENTRAL</div>
+      <div className="zones">
         {zones.map((z) => (
           <Link
             key={z.path}
             to={z.path}
-            onClick={handleNav}
+            onClick={() => sfx.blip()}
             className={location.pathname === z.path ? 'active' : ''}
           >
             {z.label}
           </Link>
         ))}
-      </nav>
+      </div>
       <div className="hud">
         <div className="credits">CREDITS: {credits}</div>
         <button className="button" onClick={onToggleMute}>
           {muted ? 'SOUND: OFF' : 'SOUND: ON'}
         </button>
       </div>
-    </>
+    </nav>
   )
 }

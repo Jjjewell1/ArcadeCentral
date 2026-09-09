@@ -2,7 +2,7 @@ import { useState } from 'react'
 import SearchBar from '../components/SearchBar.jsx'
 import GameCard from '../components/GameCard.jsx'
 
-export default function Search({ lowEnd }) {
+export default function Search() {
   const [results, setResults] = useState([])
   const [searched, setSearched] = useState(false)
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function Settings({ lowEnd, onToggleLowEnd }) {
+export default function Settings() {
   const [serverUrl, setServerUrl] = useState(localStorage.getItem('arcade-server') || '')
   const [apiKey, setApiKey] = useState('')
 
@@ -12,23 +12,7 @@ export default function Settings({ lowEnd, onToggleLowEnd }) {
     <div className="content">
       <h1>&#9881; SETTINGS</h1>
 
-      <div className="setting-row">
-        <div>
-          <div className="label">3D ARCADE WORLD</div>
-          <div className="desc">Disable for low-end devices. Falls back to flat neon UI.</div>
-        </div>
-        <div className={`toggle ${lowEnd ? '' : 'on'}`} onClick={onToggleLowEnd} />
-      </div>
-
-      {lowEnd ? (
-        <div className="empty">3D MODE OFF - RUNNING IN FLAT MODE</div>
-      ) : (
-        <div className="empty" style={{ fontSize: '8px', marginTop: '16px' }}>
-          Full 3D arcade enabled - bloom, neon, and camera dolly active
-        </div>
-      )}
-
-      <div style={{ marginTop: '24px' }}>
+      <div style={{ marginTop: '8px' }}>
         <h2>SERVER CONFIG</h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <input

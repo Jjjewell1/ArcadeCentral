@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import useApi from '../hooks/useApi.js'
 import { useCredits } from '../hooks/useCredits.jsx'
 
-export default function Home({ lowEnd }) {
+export default function Home() {
   const [stats, setStats] = useState({ libraryCount: 0, activeDownloads: 0 })
   const [recent, setRecent] = useState([])
   const { request } = useApi()
