@@ -10,7 +10,7 @@ export default function Search({ lowEnd }) {
     <div className="content">
       <h1>&#9679; TICKET COUNTER - SEARCH ALL INDEXERS</h1>
       <SearchBar onResults={(data) => {
-        setResults(Array.isArray(data) ? data : (data?.items || []))
+        setResults(Array.isArray(data) ? data : (data?.candidates || data?.items || []))
         setSearched(true)
       }} />
       {searched && results.length === 0 ? (

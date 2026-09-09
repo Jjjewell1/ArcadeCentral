@@ -10,10 +10,9 @@ export default function GameCard({ game }) {
   const { request } = useApi()
 
   const title = game?.title || game?.name || 'Untitled'
-  const platform = game?.platform || game?.categories?.[0]?.name || ''
-  const size = game?.size ? (game.size / 1024 / 1024 / 1024).toFixed(2) + ' GB' : ''
+  const platform = game?.file_format || game?.region || game?.platform || game?.categories?.[0]?.name || ''
+  const size = game?.size_bytes ? (game.size_bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB' : (game?.size ? (game.size / 1024 / 1024 / 1024).toFixed(2) + ' GB' : '')
   const seeders = game?.seeders ?? game?.peers ?? ''
-  const source = game?.indexerFlag || game?.infoHash ? 'torrent' : 'usenet'
   const coverArt = game?.coverArt || game?.images?.[0]?.url || ''
 
   const handleGrab = async (e) => {
@@ -25,10 +24,21 @@ export default function GameCard({ game }) {
     await delay(120)
     sfx.grab()
     try {
-      const releaseId = game?.id ?? game?.releaseId
+      const releaseId = game?.matched_release_id ?? game?.release_id ?? game?.releaseId ?? game?.id
+      const indexerId = game?.indexer_id ?? game?.indexerId
+      const indexerGuid = game?.indexer_guid ?? game?.guid
+      const downloadUrl = game?.download_url ?? game?.downloadUrl
+      const gameId = game?.matched_game_id ?? game?.game_id ?? game?.gameId
       await request('/romarr/grab', {
         method: 'POST',
-        body: JSON.stringify({ releaseId }),
+        body: JSON.stringify({
+          indexerId,
+          indexerGuid,
+          downloadUrl,
+          title,
+          releaseId,
+          gameId,
+        }),
       })
       setGrabbed(true)
       addCredit(title)
@@ -54,7 +64,6 @@ export default function GameCard({ game }) {
         <div className="meta">
           {platform && <span>{platform}</span>}
           {size && <span>{size}</span>}
-          {source && <span>{source}</span>}
           {seeders && <span>{seeders} SEED</span>}
         </div>
       </div>

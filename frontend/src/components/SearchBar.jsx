@@ -13,7 +13,10 @@ export default function SearchBar({ onResults, initialQuery = '' }) {
     if (!query.trim()) return
     sfx.coin()
     try {
-      const data = await request(`/prowlarr/search?q=${encodeURIComponent(query)}`)
+      const data = await request('/romarr/search', {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+      })
       onResults && onResults(data)
     } catch {
       sfx.error()

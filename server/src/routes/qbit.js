@@ -18,10 +18,11 @@ async function getCookie() {
     body: new URLSearchParams({ username: user, password: pass }),
   });
   if (!response.ok) throw new Error('qBittorrent login failed');
-  const setCookie = response.headers.get('set-cookie');
-  const sid = setCookie?.match(/SID=([^;]+)/)?.[1];
-  if (!sid) throw new Error('No SID in qBittorrent response');
-  cookieCache.cookie = `SID=${sid}`;
+  const setCookies = response.headers.getSetCookie();
+  const sidCookie = setCookies.find((c) => /(^|;\s)(QBT_SID_|SID=)/i.test(c));
+  if (!sidCookie) throw new Error('No SID in qBittorrent response');
+  const sid = sidCookie.split(';')[0];
+  cookieCache.cookie = sid;
   cookieCache.expiresAt = Date.now() + 30 * 60 * 1000;
   return cookieCache.cookie;
 }

@@ -13,7 +13,7 @@ function getConfig() {
 router.get('/queue', async (_req, res) => {
   try {
     const { url, apiKey } = getConfig();
-    const response = await fetch(`${url}/sabnzbd/api?mode=queue&output=json&apikey=${apiKey}`);
+    const response = await fetch(`${url}/api?mode=queue&output=json&apikey=${apiKey}`);
     if (!response.ok) {
       return res.status(response.status).json({ error: `SABnzbd returned ${response.status}` });
     }
@@ -27,7 +27,7 @@ router.get('/queue', async (_req, res) => {
 router.get('/history', async (_req, res) => {
   try {
     const { url, apiKey } = getConfig();
-    const response = await fetch(`${url}/sabnzbd/api?mode=history&output=json&apikey=${apiKey}`);
+    const response = await fetch(`${url}/api?mode=history&output=json&apikey=${apiKey}`);
     if (!response.ok) {
       return res.status(response.status).json({ error: `SABnzbd returned ${response.status}` });
     }
