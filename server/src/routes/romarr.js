@@ -18,7 +18,8 @@ async function sendError(res, response, fallback) {
   let detail = fallback;
   try {
     const e = await response.json();
-    detail = e?.detail?.errorMessage || e?.errorMessage || detail;
+    // pydantic 422 bodies are arrays: detail[0].msg carries the real reason
+    detail = e?.detail?.[0]?.msg || e?.detail?.errorMessage || e?.errorMessage || detail;
   } catch {
     // keep fallback
   }
@@ -69,9 +70,14 @@ router.post('/grab', async (req, res) => {
         .status(400)
         .json({ error: 'indexerId, indexerGuid, downloadUrl and title are required' });
     }
+    // RomArr's grab endpoint enforces max 255 chars on indexer_guid, but Prowlarr
+    // magnets are far longer — an oversized guid makes every grab 422 and the
+    // torrent never reaches qbit. download_url is what actually fetches the
+    // .torrent, so a truncated guid is safe metadata.
+    const safeGuid = indexerGuid.length > 255 ? indexerGuid.slice(0, 254) : indexerGuid;
     const body = {
       indexer_id: indexerId,
-      indexer_guid: indexerGuid,
+      indexer_guid: safeGuid,
       download_url: downloadUrl,
       title,
       game_id: gameId ?? undefined,
