@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { sfx } from '../audio.js'
 import { useCredits } from '../hooks/useCredits.jsx'
 
 export default function Navbar({ lowEnd, muted, onToggleMute }) {
   const { credits } = useCredits()
+  const location = useLocation()
   const prevZone = useRef(null)
 
   const zones = [
@@ -27,13 +29,14 @@ export default function Navbar({ lowEnd, muted, onToggleMute }) {
       <nav className="navbar" onClick={handleNav}>
         <div className="logo">ARCADE&#9679;CENTRAL</div>
         {zones.map((z) => (
-          <a
+          <Link
             key={z.path}
-            href={`#${z.path}`}
-            className={window.location.pathname === z.path ? 'active' : ''}
+            to={z.path}
+            onClick={handleNav}
+            className={location.pathname === z.path ? 'active' : ''}
           >
             {z.label}
-          </a>
+          </Link>
         ))}
       </nav>
       <div className="hud">

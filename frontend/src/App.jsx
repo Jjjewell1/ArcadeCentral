@@ -14,10 +14,14 @@ import Settings from './pages/Settings.jsx'
 import { CreditsProvider } from './hooks/useCredits.jsx'
 
 export default function App() {
-  const [lowEnd, setLowEnd] = useState(() => localStorage.getItem('arcade-lowend') === '1')
+  const supportsWebGL2 = typeof document !== 'undefined' &&
+    !!document.createElement('canvas').getContext('webgl2')
+  const [lowEnd, setLowEnd] = useState(() =>
+    localStorage.getItem('arcade-lowend') === '1' || !supportsWebGL2)
   const [muted, setMuted] = useState(() => localStorage.getItem('arcade-muted') === '1')
 
   const toggleLowEnd = () => {
+    if (!supportsWebGL2) return
     const next = !lowEnd
     setLowEnd(next)
     localStorage.setItem('arcade-lowend', next ? '1' : '0')
