@@ -1,0 +1,16 @@
+# frontend
+node_modules/
+dist/
+.vite/
+
+# server
+server/node_modules/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# misc
+*.log
+.DS_Store

@@ -1,0 +1,25 @@
+services:
+  frontend:
+    build: ./frontend
+    networks: [default, coolify]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.arcade.rule=Host(`arcade.jewellcore.com`)
+      - traefik.http.routers.arcade.entrypoints=http
+      - traefik.http.services.arcade.loadbalancer.server.port=80
+    restart: unless-stopped
+  server:
+    build: ./server
+    networks: [coolify]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.arcade-api.rule=Host(`arcade.jewellcore.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.arcade-api.entrypoints=http
+      - traefik.http.services.arcade-api.loadbalancer.server.port=3001
+    env_file: .env
+    restart: unless-stopped
+networks:
+  coolify:
+    external: true
