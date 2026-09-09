@@ -104,6 +104,36 @@ router.get('/platforms', async (_req, res) => {
   }
 });
 
+// Proxy RomM static assets (covers / screenshots referenced by path_cover)
+// so the browser never needs direct access to the NAS.
+router.get('/asset/:path(*)', async (req, res) => {
+  try {
+    const url = requireEnv('ROMM_URL');
+    const auth = await getAuth();
+    const response = await fetch(`${url}/${req.params.path}`, {
+      headers: {
+        Cookie: [auth.sessionCookie, auth.csrfCookie].filter(Boolean).join('; '),
+        'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
+      },
+    });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `RomM returned ${response.status}` });
+    }
+    response.headers.forEach((value, key) => {
+      if (
+        !['content-length', 'content-encoding', 'transfer-encoding', 'connection'].includes(
+          key.toLowerCase(),
+        )
+      ) {
+        res.setHeader(key, value);
+      }
+    });
+    response.body.pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/play/:gameId', async (req, res) => {
   try {
     res.json({ playUrl: `/api/romm/proxy/play/${req.params.gameId}` });

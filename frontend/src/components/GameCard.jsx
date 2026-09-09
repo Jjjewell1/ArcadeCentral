@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { sfx } from '../audio.js'
 import { useCredits } from '../hooks/useCredits.jsx'
 import useApi from '../hooks/useApi.js'
+import GameCover from './GameCover.jsx'
 
 export default function GameCard({ game }) {
   const [grabbing, setGrabbing] = useState(false)
@@ -13,13 +14,13 @@ export default function GameCard({ game }) {
   const platform = game?.file_format || game?.region || game?.platform || game?.categories?.[0]?.name || ''
   const size = game?.size_bytes ? (game.size_bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB' : (game?.size ? (game.size / 1024 / 1024 / 1024).toFixed(2) + ' GB' : '')
   const seeders = game?.seeders ?? game?.peers ?? ''
-  const coverArt = game?.coverArt || game?.images?.[0]?.url || ''
+  const region = game?.region || ''
+  const format = game?.file_format || ''
 
   const handleGrab = async (e) => {
     e.stopPropagation()
     setGrabbing(true)
     sfx.coin()
-    // mechanical ka-chunk timing
     const delay = (ms) => new Promise((r) => setTimeout(r, ms))
     await delay(120)
     sfx.grab()
@@ -52,20 +53,19 @@ export default function GameCard({ game }) {
 
   return (
     <div className="game-card">
-      <div className="cover">
-        {coverArt ? (
-          <img src={coverArt} alt={title} />
-        ) : (
-          <div className="noart">&#9670;</div>
+      <GameCover game={game} title={title} platform={platform} size="lg" />
+      <div className="badges">
+        {seeders !== '' && (
+          <span className={`badge ${seeders > 0 ? 'seed-hot' : 'seed-cold'}`}>
+            &#9829; {seeders} SEED
+          </span>
         )}
+        {region && <span className="badge badge-region">{region}</span>}
+        {format && <span className="badge badge-format">{format}</span>}
+        {size && <span className="badge badge-size">{size}</span>}
       </div>
       <div className="body">
         <div className="title">{title}</div>
-        <div className="meta">
-          {platform && <span>{platform}</span>}
-          {size && <span>{size}</span>}
-          {seeders && <span>{seeders} SEED</span>}
-        </div>
       </div>
       <div className="actions">
         <button
