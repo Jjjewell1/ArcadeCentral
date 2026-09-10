@@ -49,7 +49,7 @@ async function getAuth() {
   return authCache;
 }
 
-async function rommFetch(path, init = {}) {
+async function rommFetch(path, init = {}, attempts = 0) {
   const url = requireEnv('ROMM_URL');
   const auth = await getAuth();
   const response = await fetch(`${url}${path}`, {
@@ -60,11 +60,30 @@ async function rommFetch(path, init = {}) {
       'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
     },
   });
-  if (response.status === 401) {
+  if (response.status === 401 && attempts === 0) {
+    // One re-auth retry; if RomM still 401s, surface the response instead of
+    // recursing forever on stale/missing credentials.
     authCache = { sessionCookie: null, csrfCookie: null, expiresAt: 0 };
-    return rommFetch(path, init);
+    return rommFetch(path, init, 1);
   }
   return response;
+}
+
+function pipeStream(response, res) {
+  const stream = Readable.fromWeb(response.body);
+  stream.on('error', (err) => {
+    console.error('upstream stream error:', err.message);
+    if (!res.headersSent) res.status(502).json({ error: 'Upstream stream error' });
+    else res.destroy();
+  });
+  res.on('close', () => stream.destroy());
+  stream.pipe(res);
+}
+
+function clientAbort(req) {
+  const controller = new AbortController();
+  req.on('close', () => controller.abort());
+  return controller;
 }
 
 router.get('/library', async (_req, res) => {
@@ -111,7 +130,9 @@ router.get('/asset/:path(*)', async (req, res) => {
   try {
     const url = requireEnv('ROMM_URL');
     const auth = await getAuth();
+    const controller = clientAbort(req);
     const response = await fetch(`${url}/${req.params.path}`, {
+      signal: controller.signal,
       headers: {
         Cookie: [auth.sessionCookie, auth.csrfCookie].filter(Boolean).join('; '),
         'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
@@ -129,8 +150,12 @@ router.get('/asset/:path(*)', async (req, res) => {
         res.setHeader(key, value);
       }
     });
-    Readable.fromWeb(response.body).pipe(res);
+    pipeStream(response, res);
   } catch (err) {
+    if (err.name === 'AbortError') {
+      if (!res.headersSent) return res.status(408).json({ error: 'Client aborted request' });
+      return res.destroy();
+    }
     res.status(500).json({ error: err.message });
   }
 });
@@ -147,6 +172,7 @@ router.get('/proxy/play/:gameId', async (req, res) => {
   try {
     const url = requireEnv('ROMM_URL');
     const auth = await getAuth();
+    const controller = clientAbort(req);
     const headers = {
       Cookie: [auth.sessionCookie, auth.csrfCookie].filter(Boolean).join('; '),
       'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
@@ -157,7 +183,7 @@ router.get('/proxy/play/:gameId', async (req, res) => {
     // route requires the file_name path segment).
     const detailResponse = await fetch(
       `${url}/api/roms/${encodeURIComponent(req.params.gameId)}`,
-      { headers },
+      { headers, signal: controller.signal },
     );
     if (!detailResponse.ok) {
       return res
@@ -175,7 +201,7 @@ router.get('/proxy/play/:gameId', async (req, res) => {
     }
 
     const contentPath = `/api/roms/${encodeURIComponent(req.params.gameId)}/content/${encodeURIComponent(fileName)}`;
-    const response = await fetch(`${url}${contentPath}`, { headers });
+    const response = await fetch(`${url}${contentPath}`, { headers, signal: controller.signal });
     if (!response.ok) {
       return res.status(response.status).json({ error: `RomM returned ${response.status}` });
     }
@@ -188,8 +214,12 @@ router.get('/proxy/play/:gameId', async (req, res) => {
         res.setHeader(key, value);
       }
     });
-    Readable.fromWeb(response.body).pipe(res);
+    pipeStream(response, res);
   } catch (err) {
+    if (err.name === 'AbortError') {
+      if (!res.headersSent) return res.status(408).json({ error: 'Client aborted request' });
+      return res.destroy();
+    }
     res.status(500).json({ error: err.message });
   }
 });

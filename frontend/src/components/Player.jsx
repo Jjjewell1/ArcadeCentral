@@ -86,8 +86,9 @@ export default function Player({ game, onClose }) {
   const rootRef = useRef(null)
 
   const core = EJS_CORES[game.platform_slug]
+  const hasId = !!game.id
   const heavy = (game.fs_size_bytes || 0) > HEAVY_BYTES
-  const eligible = core && !heavy
+  const eligible = core && !heavy && hasId
   const sizeLabel = game.fs_size_bytes ? fmtGb(game.fs_size_bytes) : ''
 
   useEffect(() => {
@@ -153,7 +154,17 @@ export default function Player({ game, onClose }) {
 
       <div id="player-root" ref={rootRef} style={{ display: state === 'run' ? 'block' : 'none', flex: 1 }} />
 
-      {!core ? (
+      {!hasId ? (
+        <div className="player-fallback">
+          <div className="player-fallback-title">ROM ERROR — MISSING ID</div>
+          <p className="player-fallback-body">
+            This rom has no id and can’t be loaded or downloaded. Trigger a fresh scan or resync.
+          </p>
+          <div className="player-fallback-actions">
+            <button className="exit" onClick={() => { sfx.blip(); onClose() }}>STEP OUT</button>
+          </div>
+        </div>
+      ) : !core ? (
         <div className="player-fallback">
           <div className="player-fallback-title">
             NO BROWSER EMULATOR FOR {game.platform_display_name || game.platform_slug}
