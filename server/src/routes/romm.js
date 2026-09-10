@@ -147,12 +147,35 @@ router.get('/proxy/play/:gameId', async (req, res) => {
   try {
     const url = requireEnv('ROMM_URL');
     const auth = await getAuth();
-    const response = await fetch(`${url}/api/roms/${encodeURIComponent(req.params.gameId)}/content`, {
-      headers: {
-        Cookie: [auth.sessionCookie, auth.csrfCookie].filter(Boolean).join('; '),
-        'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
-      },
-    });
+    const headers = {
+      Cookie: [auth.sessionCookie, auth.csrfCookie].filter(Boolean).join('; '),
+      'X-CSRFToken': auth.csrfCookie?.split('=')[1] ?? '',
+    };
+
+    // Resolve the rom's registered files so single-file roms serve their real
+    // file and multi-file roms stream the assembled archive (RomM's content
+    // route requires the file_name path segment).
+    const detailResponse = await fetch(
+      `${url}/api/roms/${encodeURIComponent(req.params.gameId)}`,
+      { headers },
+    );
+    if (!detailResponse.ok) {
+      return res
+        .status(detailResponse.status)
+        .json({ error: `RomM returned ${detailResponse.status}` });
+    }
+    const detail = await detailResponse.json();
+    const files = Array.isArray(detail.files) ? detail.files : [];
+    const fileName =
+      files.length === 1
+        ? files[0].file_name
+        : detail.fs_name || detail.name || `rom-${req.params.gameId}`;
+    if (!fileName) {
+      return res.status(404).json({ error: 'No playable files found for this rom' });
+    }
+
+    const contentPath = `/api/roms/${encodeURIComponent(req.params.gameId)}/content/${encodeURIComponent(fileName)}`;
+    const response = await fetch(`${url}${contentPath}`, { headers });
     if (!response.ok) {
       return res.status(response.status).json({ error: `RomM returned ${response.status}` });
     }
