@@ -761,6 +761,12 @@ body {
   width: 100%;
   background: black;
 }
+.player-modal #player-root {
+  position: relative;
+  flex: 1;
+  background: black;
+  min-height: 0;
+}
 .player-modal .player-bar {
   height: 40px;
   display: flex;
@@ -782,6 +788,34 @@ body {
 }
 .player-modal .player-bar .exit:hover {
   background: rgba(255, 0, 224, 0.15);
+}
+.player-fallback {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 32px;
+  text-align: center;
+}
+.player-fallback-title {
+  font-size: 13px;
+  color: var(--magenta);
+  text-shadow: var(--neon-shadow);
+}
+.player-fallback-body {
+  max-width: 520px;
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: #8fb6c9;
+}
+.player-fallback-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 /* ===== Loading / empty / error ===== */
