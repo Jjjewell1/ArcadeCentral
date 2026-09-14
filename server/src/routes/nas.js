@@ -114,23 +114,23 @@ function guessPlatformFromFolder(folderName) {
   }
   // Map common folder names
   const folderMap = {
-    nintendo entertainment system: 'nes',
-    super nintendo: 'snes',
-    nintendo 64: 'n64',
-    game boy advance: 'gba',
-    game boy color: 'gbc',
-    game boy: 'gb',
+    'nintendo entertainment system': 'nes',
+    'super nintendo': 'snes',
+    'nintendo 64': 'n64',
+    'game boy advance': 'gba',
+    'game boy color': 'gbc',
+    'game boy': 'gb',
     segagenesis: 'genesis',
     segamastersystem: 'master_system',
     gamegear: 'game_gear',
     segacd: 'pce',
-    sega saturn: 'saturn',
+    'sega saturn': 'saturn',
     playstation: 'ps1',
     playstation2: 'ps2', psp: 'psp',
     gamecube: 'gamecube', wii: 'wii',
-    nintendo ds: 'nds',
-    nintendo 3ds: '3ds',
-    nintendo switch: 'switch',
+    'nintendo ds': 'nds',
+    'nintendo 3ds': '3ds',
+    'nintendo switch': 'switch',
     atari: 'atari', arcade: 'arcade', neogeo: 'neo_geo',
   };
   for (const [key, value] of Object.entries(folderMap)) {
