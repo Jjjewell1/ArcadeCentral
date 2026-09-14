@@ -11,6 +11,7 @@ const DEFAULT = {
   regions: [],
   formats: [],
   seededOnly: false,
+  systems: [],
 }
 
 function loadFilters() {
@@ -36,6 +37,7 @@ export function useSearchFilters() {
       if (filters.sizeMaxGb) list = list.filter((r) => r.size_bytes <= parseFloat(filters.sizeMaxGb) * 1024 ** 3)
       if (filters.regions.length) list = list.filter((r) => filters.regions.includes(r.region))
       if (filters.formats.length) list = list.filter((r) => filters.formats.includes(r.file_format))
+      if (filters.systems.length) list = list.filter((r) => filters.systems.includes(r.platform || r.system || ''))
       switch (filters.sort) {
         case 'seeds': list.sort((a, b) => (b.seeders ?? 0) - (a.seeders ?? 0)); break
         case 'size-desc': list.sort((a, b) => (b.size_bytes ?? 0) - (a.size_bytes ?? 0)); break
@@ -56,6 +58,7 @@ export function useSearchFilters() {
 export default function SearchFilters({ results, filters, set }) {
   const regions = useMemo(() => [...new Set(results.map((r) => r.region).filter(Boolean))].sort(), [results])
   const formats = useMemo(() => [...new Set(results.map((r) => r.file_format).filter(Boolean))].sort(), [results])
+  const systems = useMemo(() => [...new Set(results.map((r) => r.platform || r.system || '').filter(Boolean))].sort(), [results])
 
   const toggle = (key, value) => {
     const arr = filters[key]
@@ -64,7 +67,7 @@ export default function SearchFilters({ results, filters, set }) {
 
   const reset = () => {
     sfx.coin()
-    set({ sort: 'relevance', minSeeders: 0, sizeMinGb: '', sizeMaxGb: '', regions: [], formats: [], seededOnly: false })
+    set({ sort: 'relevance', minSeeders: 0, sizeMinGb: '', sizeMaxGb: '', regions: [], formats: [], seededOnly: false, systems: [] })
   }
 
   return (
@@ -143,6 +146,23 @@ export default function SearchFilters({ results, filters, set }) {
                 onClick={() => toggle('formats', f)}
               >
                 {f.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {systems.length > 1 && (
+        <div className="filter-row">
+          <label className="filter-label">SYSTEM</label>
+          <div className="chip-wrap">
+            {systems.map((s) => (
+              <button
+                key={s}
+                className={`chip ${filters.systems.includes(s) ? 'active' : ''}`}
+                onClick={() => toggle('systems', s)}
+              >
+                {s.toUpperCase()}
               </button>
             ))}
           </div>

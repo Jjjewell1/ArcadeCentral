@@ -80,4 +80,40 @@ router.post('/resume/:hash', async (req, res) => {
   }
 });
 
+router.post('/stop/:hash', async (req, res) => {
+  try {
+    const url = requireEnv('QBIT_URL');
+    const cookie = await getCookie();
+    const response = await fetch(`${url}/api/v2/torrents/pause`, {
+      method: 'POST',
+      headers: { Cookie: cookie, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ hashes: req.params.hash, download: 'false' }),
+    });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `qBittorrent returned ${response.status}` });
+    }
+    res.json({ status: 'stopped' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/remove/:hash', async (req, res) => {
+  try {
+    const url = requireEnv('QBIT_URL');
+    const cookie = await getCookie();
+    const response = await fetch(`${url}/api/v2/torrents/delete`, {
+      method: 'POST',
+      headers: { Cookie: cookie, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ uris: req.params.hash }),
+    });
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `qBittorrent returned ${response.status}` });
+    }
+    res.json({ status: 'removed' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

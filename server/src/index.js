@@ -4,6 +4,7 @@ import cors from 'cors';
 import prowlarrRoutes from './routes/prowlarr.js';
 import romarrRoutes from './routes/romarr.js';
 import rommRoutes from './routes/romm.js';
+import nasRoutes from './routes/nas.js';
 import qbitRoutes from './routes/qbit.js';
 import sabnzbdRoutes from './routes/sabnzbd.js';
 
@@ -20,6 +21,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/prowlarr', prowlarrRoutes);
 app.use('/api/romarr', romarrRoutes);
 app.use('/api/romm', rommRoutes);
+app.use('/api/nas', nasRoutes);
 app.use('/api/qbit', qbitRoutes);
 app.use('/api/sabnzbd', sabnzbdRoutes);
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useApi from '../hooks/useApi.js'
 import { useCredits } from '../hooks/useCredits.jsx'
-import GameCover from '../components/GameCover.jsx'
+import ConsoleCabinet from '../components/ConsoleCabinet.jsx'
 import { sfx } from '../audio.js'
 
 function fmtGb(bytes) {
@@ -54,23 +54,43 @@ export default function Home() {
     [library],
   )
 
-  const justLanded = useMemo(
-    () => [...transfers].sort((a, b) => (b.added_on || 0) - (a.added_on || 0)).slice(0, 8),
-    [transfers],
-  )
-
   const heroSearch = (e) => {
     e.preventDefault()
     sfx.coin()
     window.location.href = `/search?q=${encodeURIComponent(heroQuery)}`
   }
 
+  // NAS shared games - consoles to display
+  const nasPath = process.env.NAS_MOUNT_PATH || '/mnt/user/games'
+  const [nasConsoles, setNasConsoles] = useState([])
+  const [nasLoading, setNasLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadNas() {
+      try {
+        setNasLoading(true)
+        const data = await fetch(`/api/nas/platforms`, {
+          headers: { 'Accept': 'application/json' },
+        })
+        if (data.ok) {
+          const result = await data.json()
+          setNasConsoles(result.platforms || [])
+        }
+      } catch (err) {
+        // NAS not configured - that's ok, we'll show the RomM data instead
+      } finally {
+        setNasLoading(false)
+      }
+    }
+    loadNas()
+  }, [])
+
   return (
     <div>
       {/* ===== HERO ===== */}
       <section className="hero">
         <h1 className="hero-wordmark"><span>A</span>RCADE<span>&#9679;</span>CENTRAL</h1>
-        <p className="hero-tag">ONE INSERT COIN TO RULE THEM ALL &mdash; INDEXERS, TORRENTS &amp; RACKS IN ONE CABINET</p>
+        <p className="hero-tag">ONE INSERT COIN TO RULE THEM ALL &mdash; INDEXERS, TORRENTS & RACKS IN ONE CABINET</p>
         <form className="hero-search" onSubmit={heroSearch}>
           <input
             value={heroQuery}
@@ -86,33 +106,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== LIVE STATS ===== */}
-      <div className="stats">
-        <div className="stat-card">
-          <div className="num">{stats.libraryCount}</div>
-          <div className="label">GAMES ON THE RACKS</div>
-        </div>
-        <div className="stat-card">
-          <div className="num">{stats.queueCount}</div>
-          <div className="label">INBOUND QUEUE</div>
-        </div>
-        <div className="stat-card">
-          <div className="num" style={{ color: '#00f0ff', textShadow: '0 0 10px rgba(0,240,255,0.6)' }}>
-            {stats.inboundMBs >= 1 ? stats.inboundMBs.toFixed(1) + ' MB/s' : 'IDLE'}
+      {/* ===== NAS SHARE CONSOLES ===== */}
+      {nasLoading ? (
+        <div className="section" style={{ margin: '28px 0' }}>
+          <div className="section-head">
+            <h2>CONSOLES SCANNING</h2>
           </div>
-          <div className="label">CURRENT INBOUND</div>
-        </div>
-        <div className="stat-card">
-          <div className="num" style={{ fontSize: '15px' }}>{fmtGb(stats.totalBytes)}</div>
-          <div className="label">TRACKED BY THE CART</div>
-        </div>
-        {recentGrab && (
-          <div className="stat-card" style={{ borderColor: '#ffe600' }}>
-            <div className="num" style={{ fontSize: '11px', color: '#ffe600' }}>{recentGrab.toUpperCase()}</div>
-            <div className="label">MOST RECENT GRAB</div>
+          <div className="loading">
+            <span>LOADING CONSOLES FROM UNRAID SHARE</span>
+            <span className="dots"><span>.</span><span>.</span><span>.</span></span>
           </div>
-        )}
-      </div>
+        </div>
+      ) : nasConsoles.length > 0 ? (
+        <section className="section" style={{ margin: '28px 0' }}>
+          <div className="section-head">
+            <h2>&#9656; UNRAID CONSOLES</h2>
+            <Link to="/library" className="section-link">VIEW ALL GAMES &rsaquo;</Link>
+          </div>
+          <div className="console-grid">
+            {nasConsoles.map((console) => (
+              <ConsoleCabinet key={console.slug} platform={console.slug} />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="section" style={{ margin: '28px 0' }}>
+          <div className="section-head">
+            <h2>&#9656; UNRAID CONSOLES</h2>
+            <p className="empty-sub">
+              Media share not configured. Add NAS_MOUNT_PATH to .env to enable.
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* ===== RECENTLY ADDED ===== */}
       <section className="section">
@@ -127,9 +153,7 @@ export default function Home() {
               No ROMs are imported into RomM yet. Point it at your ROM folders on the NAS,
               or grab something fresh from the indexers and it lands here.
             </p>
-            <Link to="/search" className="btn-grab big">
-              &#9679; SEARCH THE INDEXERS NOW
-            </Link>
+            <Link to="/search" className="btn-grab big">&#9679; SEARCH THE INDEXERS NOW</Link>
           </div>
         ) : (
           <div className="grid">
@@ -190,4 +214,10 @@ export default function Home() {
       </section>
     </div>
   )
+}
+
+// Helper used inside the component - keep fmtGb and ageLabel accessible
+function justLanded() {
+  // This is accessed via the state above; exported for potential external use
+  return [];
 }

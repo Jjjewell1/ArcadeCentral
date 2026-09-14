@@ -172,7 +172,10 @@ export default function Player({ game, onClose }) {
           <p className="player-fallback-body">
             {game.name} is a {game.platform_display_name || game.platform_slug} title{sizeLabel ? ` (${sizeLabel})` : ''}
             — that platform has no browser core. Download it and run it in a native emulator, or
-            stream it from an emulator container on the NAS (coming next).
+            <button className="btn-stream" onClick={() => window.open(`/api/romm/streaming/config`, '_blank')}>
+              STREAM FROM NAS EMULATOR
+            </button>
+            <span className="coming-next">(coming next)</span>
           </p>
           <div className="player-fallback-actions">
             <a className="btn-grab big" href={downloadUrl} download>⬇ DOWNLOAD ROM</a>
@@ -183,7 +186,9 @@ export default function Player({ game, onClose }) {
           <div className="player-fallback-title">HEAVY CART — BIG FILE</div>
           <p className="player-fallback-body">
             {game.name} is {sizeLabel} — the in-browser emulator needs the whole file in memory and
-            will likely freeze. Streaming it from an emulator container on the NAS is the reliable
+            will likely freeze. <button className="btn-stream" onClick={() => window.open(`/api/romm/streaming/config`, '_blank')}>
+              STREAM FROM NAS EMULATOR
+            </button> Streaming it from an emulator container on the NAS is the reliable
             route for files this size.
           </p>
           <div className="player-fallback-actions">
@@ -199,9 +204,10 @@ export default function Player({ game, onClose }) {
       ) : state === 'error' ? (
         <div className="player-fallback">
           <div className="player-fallback-title">{error}</div>
-          <p className="player-fallback-body">
-            The browser emulator couldn’t start. Grab the file and run it in a native emulator, or
-            stream it from an emulator container on the NAS.
+<p className="player-fallback-body">
+            The browser emulator couldn't start. <button className="btn-stream" onClick={() => window.open(`/api/romm/streaming/config`, '_blank')}>
+              STREAM FROM NAS EMULATOR
+            </button> Grab the file and run it in a native emulator, or
           </p>
           <div className="player-fallback-actions">
             <a className="btn-grab big" href={downloadUrl} download>⬇ DOWNLOAD ROM</a>

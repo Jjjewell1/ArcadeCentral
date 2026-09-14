@@ -864,6 +864,190 @@ body {
   background: rgba(0, 240, 255, 0.5);
 }
 
+/* ===== Console cabinets & cartridges ===== */
+.console-cabinet {
+  background: var(--panel);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.console-cabinet .cabinet-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(5, 0, 15, 0.8);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+}
+.console-cabinet .cabinet-name {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+}
+.console-cabinet .cabinet-accent {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--yellow);
+  text-shadow: 0 0 6px rgba(255, 230, 0, 0.6);
+}
+.console-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 8px;
+}
+.cabinet-loading, .cabinet-error, .cabinet-empty {
+  padding: 20px;
+  text-align: center;
+  color: #8fb6c9;
+}
+.cabinet-loading .dots, .empty .dots { display: inline-block; }
+.cabinet-error { color: #ff5c8a; }
+
+.cabinet-letter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cabinet-letter {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--magenta);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.cabinet-game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.cabinet-game-card {
+  background: var(--panel);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.cabinet-game-card:hover {
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+.cabinet-game-card .GameCover {
+  height: 90px;
+  background: linear-gradient(135deg, #1a0b3a, #001a1a);
+}
+.cabinet-game-card .body {
+  padding: 6px;
+  font-size: 7px;
+  color: #8fb6c9;
+}
+.cabinet-game-card .title {
+  font-size: 8px;
+  color: #e8f6ff;
+  margin-bottom: 4px;
+}
+
+/* ===== Cartridge cards ===== */
+.cartridge-card {
+  background: var(--panel);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+.cartridge-card:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+  transform: translateY(-2px);
+}
+.cartridge-body {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cartridge-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+}
+.cartridge-title {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  font-weight: bold;
+  color: #e8f6ff;
+  line-height: 1.3;
+}
+.cartridge-platform {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--magenta);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.cartridge-cover {
+  width: 100%;
+  height: 90px;
+  background: #1a0b3a;
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  position: relative;
+}
+.cartridge-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cartridge-metal-contact {
+  width: 25%;
+  height: 6px;
+  background: var(--cyan);
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 2px;
+}
+.cartridge-metal-contact.left { left: 0; right: auto; }
+.cartridge-metal-contact.right { right: 0; left: auto; }
+.cartridge-actions {
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: flex-end;
+}
+.cartridge-actions .btn-play {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  padding: 6px 12px;
+  background: var(--panel);
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+  border-radius: 4px;
+}
+
+/* ===== Game card enhancements (overrides) ===== */
+.game-card .cover {
+  height: 130px;
+  background: linear-gradient(135deg, #1a0b3a, #001a1a);
+}
+.game-card .cover img {
+  border-radius: 6px 6px 0 0;
+}
+
 /* ===== Mobile responsiveness ===== */
 @media (max-width: 768px) {
   .navbar { height: auto; flex-wrap: wrap; padding: 6px 8px; }

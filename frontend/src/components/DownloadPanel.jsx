@@ -32,6 +32,11 @@ export default function DownloadPanel({ type = 'all' }) {
     await request(`/qbit/${action}/${hash}`, { method: 'POST' })
   }
 
+  const removeItem = async (hash) => {
+    sfx.blip()
+    await request(`/qbit/remove/${hash}`, { method: 'POST' })
+  }
+
   const torrentItems = transfers.map((t) => {
     const progress = t.progress * 100
     const speed = t.dlspeed ? (t.dlspeed / 1024 / 1024).toFixed(1) + ' MB/s' : '0 B/s'
@@ -39,6 +44,8 @@ export default function DownloadPanel({ type = 'all' }) {
       ? new Date(t.eta * 1000).toISOString().substr(11, 8)
       : '--:--:--'
     const size = t.size ? (t.size / 1024 / 1024 / 1024).toFixed(2) + ' GB' : ''
+    const isPaused = t.state === 'pausedUP' || t.state === 'stoppedUP'
+    const isRunning = t.state === 'downloading' || t.state === 'checkingUP'
     return (
       <div className="download-item" key={t.hash}>
         <div className="name">{t.name}</div>
@@ -52,10 +59,13 @@ export default function DownloadPanel({ type = 'all' }) {
           <span>{size}</span>
         </div>
         <div className="controls">
-          {t.state === 'pausedUP' || t.state === 'stoppedUP' ? (
+          {isPaused ? (
             <button onClick={() => pauseResume(t.hash, 'resume')}>RESUME</button>
           ) : (
             <button onClick={() => pauseResume(t.hash, 'pause')}>PAUSE</button>
+          )}
+          {isRunning && (
+            <button onClick={() => removeItem(t.hash)}>REMOVE</button>
           )}
         </div>
       </div>

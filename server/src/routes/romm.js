@@ -168,6 +168,25 @@ router.get('/play/:gameId', async (req, res) => {
   }
 });
 
+router.get('/streaming/config', async (req, res) => {
+  try {
+    const rommUrl = requireEnv('ROMM_URL');
+    res.json({
+      host: 'https://192.168.1.154:3010',
+      subfolder: '/streaming',
+      brokerSecret: 'change-me-broker-secret-12345',
+      label: 'Emulation station',
+      platforms: {
+        gamecube: 'dolphin',
+        wii: 'dolphin',
+        ps2: 'pcsx2',
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/proxy/play/:gameId', async (req, res) => {
   try {
     const url = requireEnv('ROMM_URL');
