@@ -75,7 +75,9 @@ export default function Home() {
         })
         if (romm.ok) {
           const result = await romm.json()
-          const list = Array.isArray(result) ? result : (result?.platforms || [])
+          const list = Array.isArray(result)
+            ? result
+            : (result?.value || result?.platforms || [])
           setNasConsoles(
             list
               .filter((p) => (p.rom_count ?? 0) > 0)
