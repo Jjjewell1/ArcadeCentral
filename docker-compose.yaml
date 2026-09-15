@@ -18,6 +18,8 @@ services:
       - traefik.http.routers.arcade-api.rule=Host(`arcade.jewellcore.com`) && PathPrefix(`/api`)
       - traefik.http.routers.arcade-api.entrypoints=http
       - traefik.http.services.arcade-api.loadbalancer.server.port=3001
+    environment:
+      - NAS_MOUNT_PATH=/mnt/user/games
     env_file: .env
     restart: unless-stopped
     volumes:
