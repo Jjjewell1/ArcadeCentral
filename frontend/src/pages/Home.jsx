@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import useApi from '../hooks/useApi.js'
 import { useCredits } from '../hooks/useCredits.jsx'
 import ConsoleCabinet from '../components/ConsoleCabinet.jsx'
+import GameCover from '../components/GameCover.jsx'
 import { sfx } from '../audio.js'
 
 function fmtGb(bytes) {

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import useApi from '../hooks/useApi.js'
 import { sfx } from '../audio.js'
+import GameCover from './GameCover.jsx'
 
 const DEFAULT_NAS_PATH = '/mnt/user/games'
 
