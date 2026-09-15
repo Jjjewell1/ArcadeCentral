@@ -1,9 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
-import useApi from '../hooks/useApi.js'
 import { sfx } from '../audio.js'
 import GameCover from './GameCover.jsx'
-
-const DEFAULT_NAS_PATH = '/mnt/user/games'
 
 /** Build a friendly label from a platform slug */
 function platformLabel(slug) {
@@ -37,38 +34,26 @@ function platformAccent(slug) {
   return colours[slug] || '#00f0ff'
 }
 
-export default function ConsoleCabinet({ platform }) {
+export default function ConsoleCabinet({ platform, name }) {
   const [games, setGames] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const nasPath = process.env.NAS_MOUNT_PATH || DEFAULT_NAS_PATH
 
   useEffect(() => {
     async function load() {
       try {
         setLoading(true)
-        // Try the NAS library endpoint first
-        const data = await fetch(`/api/nas/library?platform=${platform}`, {
+        // RomM is the source of truth for the library. The per-platform route
+        // filters server-side by platform id.
+        const data = await fetch(`/api/romm/library/${platform}`, {
           headers: { 'Accept': 'application/json' },
         })
-        if (!data.ok) throw new Error(`NAS returned ${data.status}`)
+        if (!data.ok) throw new Error(`RomM returned ${data.status}`)
         const result = await data.json()
-        setGames(result.items || [])
+        const list = Array.isArray(result) ? result : (result?.items || [])
+        setGames(list)
       } catch (err) {
         setError(err.message)
-        // Fallback: try the /api/romm/library route
-        try {
-          const data2 = await fetch(`/api/romm/library?platform=${platform}`, {
-            headers: { 'Accept': 'application/json' },
-          })
-          if (data2.ok) {
-            const result2 = await data2.json()
-            const list = Array.isArray(result2) ? result2 : (result2?.items || [])
-            setGames(list)
-          }
-        } catch (e) {
-          // keep empty state
-        }
       } finally {
         setLoading(false)
       }
@@ -117,7 +102,7 @@ export default function ConsoleCabinet({ platform }) {
   return (
     <div className="console-cabinet">
       <div className="cabinet-header">
-        <span className="cabinet-name">{platformLabel(platform)}</span>
+        <span className="cabinet-name">{name || platformLabel(platform)}</span>
         <span className="cabinet-accent" style={{ color: platformAccent(platform) }}>{'>'}</span>
       </div>
 

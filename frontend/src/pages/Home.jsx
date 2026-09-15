@@ -61,8 +61,8 @@ export default function Home() {
     window.location.href = `/search?q=${encodeURIComponent(heroQuery)}`
   }
 
-  // NAS shared games - consoles to display
-  const nasPath = process.env.NAS_MOUNT_PATH || '/mnt/user/games'
+  // UNRAID CONSOLES - consoles found in the RomM library (fallback to the NAS
+  // filesystem scanner if RomM is unreachable)
   const [nasConsoles, setNasConsoles] = useState([])
   const [nasLoading, setNasLoading] = useState(true)
 
@@ -70,6 +70,22 @@ export default function Home() {
     async function loadNas() {
       try {
         setNasLoading(true)
+        const romm = await fetch(`/api/romm/platforms`, {
+          headers: { 'Accept': 'application/json' },
+        })
+        if (romm.ok) {
+          const result = await romm.json()
+          const list = Array.isArray(result) ? result : (result?.platforms || [])
+          setNasConsoles(
+            list
+              .filter((p) => (p.rom_count ?? 0) > 0)
+              .map((p) => ({
+                slug: p.slug,
+                name: p.display_name || p.name || p.slug,
+              })),
+          )
+          return
+        }
         const data = await fetch(`/api/nas/platforms`, {
           headers: { 'Accept': 'application/json' },
         })
@@ -78,7 +94,7 @@ export default function Home() {
           setNasConsoles(result.platforms || [])
         }
       } catch (err) {
-        // NAS not configured - that's ok, we'll show the RomM data instead
+        // ROM/RomM unreachable - leave consoles empty
       } finally {
         setNasLoading(false)
       }
@@ -126,7 +142,7 @@ export default function Home() {
           </div>
           <div className="console-grid">
             {nasConsoles.map((console) => (
-              <ConsoleCabinet key={console.slug} platform={console.slug} />
+              <ConsoleCabinet key={console.slug} platform={console.slug} name={console.name} />
             ))}
           </div>
         </section>
@@ -135,7 +151,8 @@ export default function Home() {
           <div className="section-head">
             <h2>&#9656; UNRAID CONSOLES</h2>
             <p className="empty-sub">
-              Media share not configured. Add NAS_MOUNT_PATH to .env to enable.
+              No ROMs have been imported into RomM yet. Grab something fresh from the indexers and
+              it lands here as a new console.
             </p>
           </div>
         </section>

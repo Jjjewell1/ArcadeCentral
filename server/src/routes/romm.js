@@ -100,8 +100,23 @@ router.get('/library', async (_req, res) => {
 
 router.get('/library/:platform', async (req, res) => {
   try {
+    // RomM filters /api/roms by platform_ids (integer), not slug. Resolve the
+    // slug to its internal id first, then pass platform_ids through.
+    const platformsRes = await rommFetch('/api/platforms');
+    if (!platformsRes.ok) {
+      return res
+        .status(platformsRes.status)
+        .json({ error: `RomM returned ${platformsRes.status}` });
+    }
+    const platforms = await platformsRes.json();
+    const platform = (Array.isArray(platforms) ? platforms : []).find(
+      (p) => p.slug === req.params.platform || p.fs_slug === req.params.platform,
+    );
+    if (!platform) {
+      return res.status(404).json({ error: `Unknown platform: ${req.params.platform}` });
+    }
     const response = await rommFetch(
-      `/api/roms?platform=${encodeURIComponent(req.params.platform)}`,
+      `/api/roms?platform_ids=${encodeURIComponent(platform.id)}`,
     );
     if (!response.ok) {
       return res.status(response.status).json({ error: `RomM returned ${response.status}` });
