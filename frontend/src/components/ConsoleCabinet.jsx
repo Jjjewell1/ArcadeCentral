@@ -63,6 +63,21 @@ export default function ConsoleCabinet({ platform, name }) {
     return () => clearInterval(id)
   }, [platform])
 
+  // Group games by the first letter of their name for a nice layout.
+  // MUST be called before any conditional return - React requires every hook to
+  // run on every render, else it errors with "Rendered more hooks than during
+  // the previous render" (#310).
+  const sorted = [...games].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  const byLetter = useMemo(() => {
+    const groups = {}
+    for (const g of sorted) {
+      const letter = (g.name || '').charAt(0).toUpperCase()
+      if (!groups[letter]) groups[letter] = []
+      groups[letter].push(g)
+    }
+    return groups
+  }, [sorted])
+
   if (loading) {
     return (
       <div className="cabinet-loading">
@@ -86,18 +101,6 @@ export default function ConsoleCabinet({ platform, name }) {
       </div>
     )
   }
-
-  // Group games by the first letter of their name for a nice layout
-  const sorted = [...games].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-  const byLetter = useMemo(() => {
-    const groups = {}
-    for (const g of sorted) {
-      const letter = (g.name || '').charAt(0).toUpperCase()
-      if (!groups[letter]) groups[letter] = []
-      groups[letter].push(g)
-    }
-    return groups
-  }, [sorted])
 
   return (
     <div className="console-cabinet">
